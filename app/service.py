@@ -26,11 +26,15 @@ def _stage(name):
     return SPEC["stages"].index(name) + 1
 
 
-def pipeline(profile="dirty", path=None, upto="证据交付"):
+def pipeline(profile="dirty", path=None, upto="证据交付", effective_at=None,
+             effective_times=None, portings=None, handover=None):
     intake = load(profile, path)
     prepared, prepare_issues = [], []
     results = []
     ledger = None
+    handover_result = None
+    handover_requested = any(value not in (None, "", {}) for value in
+                             (effective_at, effective_times, portings, handover)) or handover is not None
     if _stage(upto) >= 2:
         prepared, prepare_issues = prepare_rows(intake["rows"])
     if _stage(upto) >= 3:
@@ -39,6 +43,15 @@ def pipeline(profile="dirty", path=None, upto="证据交付"):
         results = decide_rows(results)
     if _stage(upto) >= 5:
         ledger = build_ledger(intake, prepared, prepare_issues, results)
+    if handover_requested and _stage(upto) >= 2:
+        from app.handover.domain import settle_handovers
+        options = handover if isinstance(handover, dict) else {}
+        handover_result = settle_handovers(
+            prepared,
+            effective_at=effective_at if effective_at is not None else options.get("effective_at"),
+            effective_times=effective_times if effective_times is not None else options.get("effective_times"),
+            portings=portings if portings is not None else options.get("portings"),
+        )
     intake["counts"]["prepared"] = len(prepared)
     intake["counts"]["computed"] = len(results)
     issues = intake["issues"] + prepare_issues
@@ -73,6 +86,7 @@ def pipeline(profile="dirty", path=None, upto="证据交付"):
         "chart": chart,
         "summary": summary,
         "ledger": ledger,
+        "handover": handover_result,
         "stages": [{"id": "intake", "name": SPEC["stages"][0]},
                    {"id": "prepare", "name": SPEC["stages"][1]},
                    {"id": "calculate", "name": SPEC["stages"][2]},

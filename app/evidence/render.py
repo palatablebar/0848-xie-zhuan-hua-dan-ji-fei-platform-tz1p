@@ -17,6 +17,11 @@ def render(run):
         "counts": run["counts"],
         "ledger": run["ledger"],
         "summary": run["summary"],
+        "handover": run.get("handover"),
+        "handover_posting": run.get("handover_posting"),
+        "handover_postings": run.get("postings") or run.get("handover_postings"),
+        "postings": run.get("postings"),
+        "settlements": run.get("settlements"),
         "review": {"status": run["status"], "revision": run["revision"], "comment": run["comment"]},
     }
     artifact["artifact_sha256"] = stable_digest(artifact)

@@ -40,5 +40,40 @@
       </div>
     </article>
   </section>
+
+  <section class="board handover-board" aria-label="携转交接结算">
+    <article class="panel" id="panel-handover">
+      <div class="panel-head">
+        <h2>携转交接归属与结算</h2>
+        <span class="hint">跨生效时刻分段 · 两家合计与客户应收对账到分 · 重跑不重复入账</span>
+      </div>
+      <div class="handover-controls">
+        <label>生效时刻（整批，可留空）
+          <input id="ho-effective" type="text" placeholder="2026-11-20 10:01:00">
+        </label>
+        <label class="ho-grow">分用户生效时刻 JSON（可选）
+          <input id="ho-effective-map" type="text" placeholder='{"A":"2026-11-20 10:01:00"}'>
+        </label>
+        <button id="ho-preview" type="button">试算</button>
+        <button id="ho-issue" type="button">签发 / 重跑入账</button>
+      </div>
+      <div class="handover-controls">
+        <label class="ho-grow">按批次 run_id 查询签发后的归属与金额
+          <input id="ho-run-id" type="text" placeholder="run_id">
+        </label>
+        <button id="ho-query-run" type="button">查询 run 结算</button>
+        <span id="ho-status" class="hint"></span>
+      </div>
+      <div id="ho-recon" class="handover-recon"></div>
+      <div class="table-wrap">
+        <table>
+          <thead id="ho-head"></thead>
+          <tbody id="ho-body"></tbody>
+        </table>
+      </div>
+      <ul class="issues" id="ho-held"></ul>
+      <div id="ho-postings" class="handover-postings"></div>
+    </article>
+  </section>
 </main>
 {% endblock %}

@@ -63,3 +63,15 @@ class Store:
             db.execute("UPDATE runs SET status=?, revision=revision+1, comment=? WHERE id=?",
                        (decision, comment, run_id))
         return self.get(run_id), None
+
+    def patch_payload(self, run_id, patch):
+        """在不改变 revision/status 的前提下，向 payload 合并写入派生结果（如入账摘要）。"""
+        row = self.get(run_id)
+        if row is None:
+            return None
+        payload = json.loads(row["payload"])
+        payload.update(patch)
+        with self.connect() as db:
+            db.execute("UPDATE runs SET payload=? WHERE id=?",
+                       (json.dumps(payload, ensure_ascii=False), run_id))
+        return self.get(run_id)
